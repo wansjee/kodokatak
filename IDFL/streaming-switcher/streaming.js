@@ -1,82 +1,55 @@
 /* ==========================================
-   Streaming Switcher (STABLE VERSION)
-   Server 1 : short.icu (slug)
-   Server 2 : vidsrcme (IMDb)
-   Server 3 : 2embed (IMDb)
-   Compatible: vBulletin 4.1.11
+   Simple Iframe Streaming Switcher
+   vBulletin 4.1.11 Compatible
 ========================================== */
 
-var STREAM_SERVERS = [
-  {
-    label: "Server 1",
-    build: (imdb, slug) =>
-      slug ? `https://short.icu/${slug}` : null
-  },
-  {
-    label: "Server 2",
-    build: imdb =>
-      `https://vidsrcme.ru/embed/movie?imdb=${imdb}`
-  },
-  {
-    label: "Server 3",
-    build: imdb =>
-      `https://www.2embed.stream/embed/movie/${imdb}`
-  }
-];
-
-var currentIndex = 0;
-
-// ===== INIT =====
-document.addEventListener("DOMContentLoaded", function () {
-  loadServer(0);
-});
-
-// ===== LOAD SERVER =====
-function loadServer(index) {
-  var box = document.getElementById("player-box");
-  if (!box || !STREAM_SERVERS[index]) return;
-
-  var imdb = box.getAttribute("data-imdb");
-  var slug = box.getAttribute("data-slug");
-
-  if (!imdb) {
-    showError("IMDb ID tidak ditemukan.");
-    return;
-  }
-
-  var url = STREAM_SERVERS[index].build(imdb, slug);
-
-  // Server 1 tapi slug kosong → langsung lompat ke Server 2
-  if (!url) {
-    loadServer(index + 1);
-    return;
-  }
-
-  currentIndex = index;
-  document.getElementById("videoPlayer").src = url;
-  setActiveButton(index);
-}
-
-// ===== MANUAL SWITCH =====
-function changeServer(n) {
-  loadServer(n - 1);
-}
-
-// ===== UI =====
-function setActiveButton(index) {
-  document.querySelectorAll(".server-table button")
-    .forEach(btn => btn.classList.remove("active"));
-
-  var btn = document.querySelectorAll(".server-table button")[index];
-  if (btn) btn.classList.add("active");
-}
-
-function showError(msg) {
+function loadIframe(server) {
   var box = document.getElementById("player-box");
   if (!box) return;
 
-  box.innerHTML =
-    "<div style='background:#000;color:#fff;padding:20px;text-align:center'>" +
-    msg +
-    "</div>";
+  var imdb = box.getAttribute("data-imdb");
+  var slug = box.getAttribute("data-slug");
+  var iframe = document.getElementById("videoPlayer");
+
+  if (!iframe || !imdb) return;
+
+  var url = "";
+
+  if (server === 1 && slug) {
+    url = "https://short.icu/" + slug;
+  }
+
+  if (server === 2) {
+    url = "https://vidsrcme.ru/embed/movie?imdb=" + imdb;
+  }
+
+  if (server === 3) {
+    url = "https://www.2embed.stream/embed/movie/" + imdb;
+  }
+
+  if (url) {
+    iframe.src = url;
+    setActive(server);
+  }
 }
+
+function setActive(server) {
+  var buttons = document.querySelectorAll(".server-table button");
+  buttons.forEach(btn => btn.classList.remove("active"));
+  if (buttons[server - 1]) {
+    buttons[server - 1].classList.add("active");
+  }
+}
+
+// load default server (Server 1 kalau ada slug, kalau tidak Server 2)
+document.addEventListener("DOMContentLoaded", function () {
+  var box = document.getElementById("player-box");
+  if (!box) return;
+
+  var slug = box.getAttribute("data-slug");
+  if (slug) {
+    loadIframe(1);
+  } else {
+    loadIframe(2);
+  }
+});
