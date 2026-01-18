@@ -5,7 +5,6 @@
 
 .server-table {
   width: 100%;
-  border-collapse: collapse;
   background: #111;
   text-align: center;
 }
@@ -27,11 +26,6 @@
   color: #fff;
   border: none;
   cursor: pointer;
-  font-size: 13px;
-}
-
-.server-table button:hover {
-  background: #555;
 }
 
 .server-table button.active {
