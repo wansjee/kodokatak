@@ -1,16 +1,16 @@
 /* ==========================================
    Simple Iframe Streaming Switcher
    vBulletin 4.1.11 Compatible
+   NO auto fallback, NO timer
 ========================================== */
 
-function loadIframe(server) {
-  var box = document.getElementById("player-box");
+function loadServer(server) {
+  var box = document.querySelector(".player-wrapper");
   if (!box) return;
 
   var imdb = box.getAttribute("data-imdb");
   var slug = box.getAttribute("data-slug");
   var iframe = document.getElementById("videoPlayer");
-
   if (!iframe || !imdb) return;
 
   var url = "";
@@ -41,15 +41,15 @@ function setActive(server) {
   }
 }
 
-// load default server (Server 1 kalau ada slug, kalau tidak Server 2)
+// load default server saat halaman siap
 document.addEventListener("DOMContentLoaded", function () {
-  var box = document.getElementById("player-box");
+  var box = document.querySelector(".player-wrapper");
   if (!box) return;
 
   var slug = box.getAttribute("data-slug");
   if (slug) {
-    loadIframe(1);
+    loadServer(1);
   } else {
-    loadIframe(2);
+    loadServer(2);
   }
 });
