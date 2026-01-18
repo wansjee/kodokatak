@@ -1,24 +1,23 @@
-#player-box {
+.player-wrapper {
   background: #000;
   margin-bottom: 10px;
 }
 
 .server-table {
   width: 100%;
+  border-collapse: collapse;
   background: #111;
   text-align: center;
-  border-collapse: collapse;
 }
 
 .server-table th {
   background: #222;
   color: #fff;
   padding: 8px;
-  font-weight: bold;
 }
 
 .server-table td {
-  padding: 5px;
+  padding: 6px;
 }
 
 .server-table button {
