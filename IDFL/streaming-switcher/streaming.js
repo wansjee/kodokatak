@@ -1,5 +1,5 @@
 /* ==========================================
-   Streaming Switcher
+   Streaming Switcher (STABLE VERSION)
    Server 1 : short.icu (slug)
    Server 2 : vidsrcme (IMDb)
    Server 3 : 2embed (IMDb)
@@ -25,8 +25,6 @@ var STREAM_SERVERS = [
 ];
 
 var currentIndex = 0;
-var fallbackTimer = null;
-var FALLBACK_TIMEOUT = 6000;
 
 // ===== INIT =====
 document.addEventListener("DOMContentLoaded", function () {
@@ -48,35 +46,19 @@ function loadServer(index) {
 
   var url = STREAM_SERVERS[index].build(imdb, slug);
 
-  // Server 1 tapi slug kosong → auto pindah ke Server 2
+  // Server 1 tapi slug kosong → langsung lompat ke Server 2
   if (!url) {
-    autoFallback(index);
+    loadServer(index + 1);
     return;
   }
 
   currentIndex = index;
   document.getElementById("videoPlayer").src = url;
   setActiveButton(index);
-
-  clearTimeout(fallbackTimer);
-  fallbackTimer = setTimeout(function () {
-    autoFallback(currentIndex);
-  }, FALLBACK_TIMEOUT);
-}
-
-// ===== AUTO FALLBACK =====
-function autoFallback(fromIndex) {
-  var next = fromIndex + 1;
-  if (STREAM_SERVERS[next]) {
-    loadServer(next);
-  } else {
-    showError("Server sedang tidak tersedia.");
-  }
 }
 
 // ===== MANUAL SWITCH =====
 function changeServer(n) {
-  clearTimeout(fallbackTimer);
   loadServer(n - 1);
 }
 
