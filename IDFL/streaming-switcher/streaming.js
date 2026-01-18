@@ -1,55 +1,60 @@
 /* ==========================================
-   Simple Iframe Streaming Switcher
+   Conditional Streaming Switcher
    vBulletin 4.1.11 Compatible
-   NO auto fallback, NO timer
 ========================================== */
 
-function loadServer(server) {
-  var box = document.querySelector(".player-wrapper");
-  if (!box) return;
-
-  var imdb = box.getAttribute("data-imdb");
-  var slug = box.getAttribute("data-slug");
-  var iframe = document.getElementById("videoPlayer");
-  if (!iframe || !imdb) return;
-
-  var url = "";
-
-  if (server === 1 && slug) {
-    url = "https://short.icu/" + slug;
-  }
-
-  if (server === 2) {
-    url = "https://vidsrcme.ru/embed/movie?imdb=" + imdb;
-  }
-
-  if (server === 3) {
-    url = "https://www.2embed.stream/embed/movie/" + imdb;
-  }
-
-  if (url) {
-    iframe.src = url;
-    setActive(server);
-  }
-}
-
-function setActive(server) {
-  var buttons = document.querySelectorAll(".server-table button");
-  buttons.forEach(btn => btn.classList.remove("active"));
-  if (buttons[server - 1]) {
-    buttons[server - 1].classList.add("active");
-  }
-}
-
-// load default server saat halaman siap
 document.addEventListener("DOMContentLoaded", function () {
   var box = document.querySelector(".player-wrapper");
   if (!box) return;
 
-  var slug = box.getAttribute("data-slug");
-  if (slug) {
-    loadServer(1);
-  } else {
-    loadServer(2);
+  var servers = [
+    {
+      label: "SERVER 1",
+      value: box.getAttribute("data-s1"),
+      build: v => "https://short.icu/" + v
+    },
+    {
+      label: "SERVER 2",
+      value: box.getAttribute("data-s2"),
+      build: v => "https://vidsrcme.ru/embed/movie?imdb=" + v
+    },
+    {
+      label: "SERVER 3",
+      value: box.getAttribute("data-s3"),
+      build: v => "https://www.2embed.stream/embed/movie/" + v
+    }
+  ];
+
+  var iframe = document.getElementById("videoPlayer");
+  var table  = document.getElementById("serverTable");
+
+  // filter server yang ADA saja
+  var activeServers = servers.filter(s => s.value);
+
+  if (activeServers.length === 0) return;
+
+  // build table
+  var html = "<tr><th colspan='" + activeServers.length + "'>PILIH SERVER</th></tr><tr>";
+  activeServers.forEach(function (s, i) {
+    html += "<td><button onclick='loadServer(" + i + ")'>" + s.label + "</button></td>";
+  });
+  html += "</tr>";
+  table.innerHTML = html;
+
+  // expose loader
+  window.loadServer = function (index) {
+    var srv = activeServers[index];
+    if (!srv) return;
+    iframe.src = srv.build(srv.value);
+    setActive(index);
+  };
+
+  function setActive(index) {
+    table.querySelectorAll("button").forEach(btn => btn.classList.remove("active"));
+    var btn = table.querySelectorAll("button")[index];
+    if (btn) btn.classList.add("active");
   }
+
+  // load default = server pertama yang tersedia
+  loadServer(0);
 });
